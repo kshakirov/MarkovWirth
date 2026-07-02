@@ -1,5 +1,7 @@
 {
   "dependencies": {
     "axios": "^1.18.1"
-  }
+  },
+
+    "type": "module"
 }
