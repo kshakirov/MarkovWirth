@@ -51,7 +51,7 @@ function parseFilePerByte(index, length){
 	    let [cell, n_str] = parseEscaped(par,"")
 	    return addCellToArray(cell, parseFile(n_str))
 	}else if (buffer[index] == 0x2C){
-	    console.log("fdfd")
+	    console.log("comma")
 	    return  parseFilePerByte(index + 1, length) ;
 
 	    
