@@ -16,17 +16,18 @@ console.log(buffer);
 
 
 function parseUnescaped(index,length, acc){
+    console.log(index, buffer[index]);
     if(buffer[index]!==0x2C  && buffer[index] != 0xA){
 	acc = Buffer.concat([acc, Buffer.from([buffer[index]])]);
 	return parseUnescaped(index + 1, length, acc);
-    }else if(buffer[index]== 0x2C || buffer[index] == 0x2C){
+    }else if(buffer[index]== 0x2C || buffer[index] == 0xA){
+	console.log(acc);
 	return [acc, index];
     }
 }
 
 
 function addCellToArray(cell, array){
-    console.log(cell);
     array[0].unshift(cell);
     return array
 }
@@ -47,32 +48,34 @@ function parseFilePerByte(index, length){
 	    let [cell , new_index] = parseUnescaped(index, length, Buffer.alloc(0));
 	    return addCellToArray(cell, parseFilePerByte(new_index, length))
 	}else if(buffer[index]=="\"" && buffer[index] != "\n"){
-	    let par = str;
-	    let [cell, n_str] = parseEscaped(par,"")
-	    return addCellToArray(cell, parseFile(n_str))
+	    //let par = str;
+	    //let [cell, n_str] = parseEscaped(par,"")
+	    //return addCellToArray(cell, parseFile(n_str))
 	}else if (buffer[index] == 0x2C){
 	    console.log("comma")
 	    return  parseFilePerByte(index + 1, length) ;
 
 	    
 	}else if(buffer[index] == 0xA){
-	    console.log(length)
-	    if(length >= index){
+	    console.log("newline")
+	    if(index + 2 < length){
+		console.log("Finishing " + length + " " + index);
 		return  addEmptyArrayToNewLine(parseFilePerByte(index + 1, length)) ;
 //		return  parseFile(str.slice(1)) ;
 	    }else{
-		return parseFile([])
+		console.log("the end");
+		return parseFilePerByte([])
 	    }
 
 	}
     }
     else {
 	
-	console.log("Finishing ");
-	return [] ;
+	console.log("Descent Finished ");
+	return [[]] ;
     }
 
 }
 
 
-parseFilePerByte(0,buffer.length)
+console.log(parseFilePerByte(0,buffer.length))
