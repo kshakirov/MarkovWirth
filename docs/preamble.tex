@@ -1,0 +1,18 @@
+% preamble.tex - Настройки шрифтов и окружения для XeLaTeX / LuaLaTeX
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{russian}
+\setotherlanguage{english}
+
+% Подключаем стандартные системные шрифты (например, Liberation или Times)
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\geometry{top=2cm, bottom=2cm, left=2.5cm, right=2cm}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=cyan}
