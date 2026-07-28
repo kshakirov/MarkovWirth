@@ -1,4 +1,5 @@
-import {MarkovEngine} from "./../lib/parser/markov/parse_escaped.js"
+//import {MarkovEngine} from "./../lib/parser/markov/parse_escaped.js"
+import {MarkovEngine} from "./parse_escaped_byte.js"
 import {Buffer} from "node:buffer"
 console.log("creating the parser")
 
