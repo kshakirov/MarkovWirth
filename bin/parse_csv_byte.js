@@ -1,5 +1,5 @@
 //import {MarkovEngine} from "./../lib/parser/markov/parse_escaped.js"
-import {MarkovEngine} from "./parse_escaped_byte.js"
+import {MarkovEngine} from "./../lib/parser/markov/parse_escaped_byte.js"
 import {Buffer} from "node:buffer"
 console.log("creating the parser")
 
@@ -49,9 +49,9 @@ function parseFilePerByte(index, length){
 	    let [cell , new_index] = parseUnescaped(index, length, Buffer.alloc(0));
 	    return addCellToArray(cell, parseFilePerByte(new_index, length))
 	}else if(buffer[index]=="\"" && buffer[index] != "\n"){
-	    //let par = str;
-	    //let [cell, n_str] = parseEscaped(par,"")
-	    //return addCellToArray(cell, parseFile(n_str))
+	    let par = str;
+	    let [cell, new_index] = MarkovEngine(index,buffer)
+	    return addCellToArray(cell, parseFilePerByte(new_index, length))
 	}else if (buffer[index] == 0x2C){
 	    console.log("comma")
 	    return  parseFilePerByte(index + 1, length) ;
