@@ -55,8 +55,8 @@ function parseFilePerByte(index, length){
 	    let [result, new_index,cell ] = MarkovEngine(index + 1,buffer)
 	    
 	    if(result){
-		console.log(cell[cell.length - 1], new_index);
-		console.log(cell);
+		//console.log(cell[cell.length - 1], new_index);
+		//console.log(cell);
 //		return addCellToArray(cell.subarray(0, -1), parseFilePerByte(new_index, length))
 		return addCellToArray(cell, parseFilePerByte(new_index, length))
 	    }else{
