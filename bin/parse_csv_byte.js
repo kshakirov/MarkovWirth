@@ -7,8 +7,9 @@ import {Buffer} from "node:buffer"
 const csv = `pos,id,name,
 1,here it is 100,a,
 2,200,k,
-3," ""3"" ",
-4,400,a
+3," ""3"" ",1,
+4,400,a,
+5,500,b
 `
 
 
@@ -54,7 +55,9 @@ function parseFilePerByte(index, length){
 	    let [result, new_index,cell ] = MarkovEngine(index + 1,buffer)
 	    
 	    if(result){
-		console.log(new_index, cell);
+		console.log(cell[cell.length - 1], new_index);
+		console.log(cell);
+//		return addCellToArray(cell.subarray(0, -1), parseFilePerByte(new_index, length))
 		return addCellToArray(cell, parseFilePerByte(new_index, length))
 	    }else{
 		console.log(`Error ${new_index}, ${cell}`);
@@ -62,12 +65,12 @@ function parseFilePerByte(index, length){
 	    }
 
 	}else if (buffer[index] == 0x2C){
-	  //  console.log("comma")
+	    //console.log("comma")
 	    return  parseFilePerByte(index + 1, length) ;
 
 	    
 	}else if(buffer[index] == 0xA){
-	   // console.log("newline")
+	    //console.log("newline")
 	    if(index + 2 < length){
 	//	console.log("Finishing " + length + " " + index);
 		return  addEmptyArrayToNewLine(parseFilePerByte(index + 1, length)) ;
@@ -89,3 +92,4 @@ function parseFilePerByte(index, length){
 
 
 console.log(`${parseFilePerByte(0,buffer.length)}`)
+console.log(parseFilePerByte(0,buffer.length))
