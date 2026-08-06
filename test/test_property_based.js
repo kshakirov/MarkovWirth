@@ -1,4 +1,4 @@
-import { MarkovEngine } from '../lib/parser/markov/parse_escaped_byte.js'
+import { MarkovEngine } from '../lib/parser/markov/parse_escaped_byte_no_window.js'
 
 // Генератор случайного буфера заданной длины и структуры
 function generateStochasticBuffer(length, type = 'chaos') {
