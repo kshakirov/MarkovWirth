@@ -67,12 +67,13 @@ function runExtremeNoWindowTest(iterations = 10000) {
     // ... логика теста аналогична предыдущей, с вызовом parseEscapedByteNoWindow ...
     // В случае ошибки выводится дамп и завершается процесс.
     for (let i =0; i< iterations; i++){
+	const test = i % 2 === 0 
+            ? generateTruePositiveTuple(256) 
+            : generateTrueNegativeTuple(256);
+	//let test =   generateTruePositiveTuple();
+//	let test =   generateTrueNegativeTuple();
 	
-//	let test =   generateTruePositiveTuple();
-	let test =   generateTrueNegativeTuple(16);
-	
-	console.log(i, test.buffer.length);
-	console.log(test);
+
 	let [result, a, b] = MarkovEngine(0, test.buffer);
 	if(result != test.expected){
 	    console.log("Doesnt work")
@@ -81,5 +82,5 @@ function runExtremeNoWindowTest(iterations = 10000) {
     //console.log(result);
 }
 
-runExtremeNoWindowTest(1);
+runExtremeNoWindowTest(10000);
 // Хелпер: безопасные байты (исключая ", ,, \n, \r)
