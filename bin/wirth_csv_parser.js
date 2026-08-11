@@ -39,13 +39,10 @@ export function WirthCsvParser(buffer, index, length){
 	    let [cell , new_index] = parseUnescaped(buffer, index, length, Buffer.alloc(0));
 	    return addCellToArray(cell, WirthCsvParser(buffer, new_index, length))
 	}else if(buffer[index]==0x22 && buffer[index] != 0xA){
-	    //let par = str;
+
 	    let [result, new_index,cell ] = MarkovEngine(index + 1,buffer)
 	    
 	    if(result){
-		//console.log(cell[cell.length - 1], new_index);
-		//console.log(cell);
-//		return addCellToArray(cell.subarray(0, -1), parseFilePerByte(new_index, length))
 		return addCellToArray(cell, WirthCsvParser(buffer, new_index, length))
 	    }else{
 		console.log(`Error ${new_index}, ${cell}`);
