@@ -69,7 +69,7 @@ export function WirthCsvParser(buffer, index, length){
     }
     else {
 	
-	console.log("Descent Finished ");
+	//console.log("Descent Finished ");
 	return [[]] ;
     }
 
