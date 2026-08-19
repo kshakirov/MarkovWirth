@@ -22,8 +22,7 @@ const csv4 = `"""0f2rn""","""xzj""",548
 
 
 const csv5 = `"ki3dt8sgd
-a38tww"
-`
+a38tww"`
 const csv6 = `"ki3dt8sgd
 dd2cx
 p5megc
@@ -32,12 +31,20 @@ z,,wr1x5
 c0d4p,8bty2yh
 8,48jfq 
 c,aiwf
-a38tww"
-`
+a38tww"`
+
+
+const csv7 = `"r
+eatl21flm2kr7c
+960170
+x9jvlj73p"
+"le9"" 87""t5yfyll
+gm
+vc""kjqxhtm"`
 //let result = WirthCsvParser(buffer, 0, buffer.length);
 // console.log(result);
 
-let buffer = Buffer.from(csv6);
+let buffer = Buffer.from(csv7);
 let result = WirthCsvParserFlat(buffer, buffer.length);
 console.log(result);
 
