@@ -15,8 +15,9 @@ chunk = 256;
 let csv_buffer = Buffer.alloc(0);
 for (let position=0; position < 100000000; position += chunk){
     if(position + chunk > bufSize){
-	let addedBuffer = Buffer.alloc(bufSize);
-	buf = Buffer.concat([buf, addedBuffer]);
+	let addedBuffer = Buffer.alloc(bufSize*2);
+	buf.copy(addedBuffer,0,0);
+	buf = addedBuffer;
 	bufSize *=2;
 	console.log(`Extended Array the size is ${bufSize}`)
     }
