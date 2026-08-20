@@ -44,7 +44,7 @@ vc""kjqxhtm"`
 //let result = WirthCsvParser(buffer, 0, buffer.length);
 // console.log(result);
 
-let buffer = Buffer.from(csv7);
+let buffer = Buffer.from(csv);
 let result = WirthCsvParserFlat(buffer, buffer.length);
 console.log(result);
 
