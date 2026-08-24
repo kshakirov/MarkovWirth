@@ -12,9 +12,10 @@ const STATE_START = 0;
 const ROW_END_SENTINEL = -1
 const itable = new Int32Array(256);
 let buffer = Buffer.from(csv),
+    buffer_pointer = 0,
     itable_pointer= 0,
     state= STATE_START; //celle
 
-let result = WirthMarkovFSM(buffer, buffer.length,itable, itable_pointer, state );
+let result = WirthMarkovFSM(buffer, buffer_pointer,itable, itable_pointer, state );
 console.log(result);
 
