@@ -19,21 +19,28 @@ const ROW_END_SENTINEL = -1
 //let result = WirthMarkovFSM(buffer, buffer_pointer,itable, itable_pointer, state );
 //console.log(result);
 
-let buffer= Buffer.from("pos,na"),
+let bufferd= Buffer.from("a,"),
     bufferIndex = 0,
     itable = new Int32Array(256),
     itableIndex =0,
     parserState = 5;
 
-[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
-console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
-console.log(itable);
+// [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+// console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
+// console.log(itable);
 
-buffer= Buffer.from("pos,name,id\n");
+// buffer=  Buffer.from("a,b\n");
 
-[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
-console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
-console.log(itable);
+// [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+// console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
+// console.log(itable);
+
+let buffers = [Buffer.from("a,"),Buffer.from("a,b"), Buffer.from("a,b,c,d\n"), Buffer.from("a,b,c,d\ne,f,g,h\n")];
+for (let buffer of buffers){
+    [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+    console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
+    console.log(itable);
+}
 
 
 
