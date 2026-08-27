@@ -10,12 +10,31 @@ const STATE_START = 0;
 
 // Флаги-сентинелы для ленты разметки
 const ROW_END_SENTINEL = -1
-const itable = new Int32Array(256);
-let buffer = Buffer.from(csv),
-    buffer_pointer = 0,
-    itable_pointer= 0,
-    state= STATE_START; //celle
+//const itable = new Int32Array(256);
+// let buffer = Buffer.from(csv),
+//     buffer_pointer = 0,
+//     itable_pointer= 0,
+//     state= STATE_START; //celle
 
-let result = WirthMarkovFSM(buffer, buffer_pointer,itable, itable_pointer, state );
-console.log(result);
+//let result = WirthMarkovFSM(buffer, buffer_pointer,itable, itable_pointer, state );
+//console.log(result);
+
+let buffer= Buffer.from("pos,na"),
+    bufferIndex = 0,
+    itable = new Int32Array(256),
+    itableIndex =0,
+    parserState = 5;
+
+[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
+console.log(itable);
+
+buffer= Buffer.from("pos,name,id\n");
+
+[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
+console.log(itable);
+
+
+
 
