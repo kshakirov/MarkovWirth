@@ -8,7 +8,7 @@ let bufferIndex = 0,
     parserState = 5;
 
 
-let buffers = [Buffer.from(","),Buffer.from(",b,"), Buffer.from(",b,c,d\n"), Buffer.from(",b,c,d\ne,f,g,h\n")];
+let buffers = [Buffer.from("a,"),Buffer.from("a,b,"), Buffer.from("a,b,c,d\n"), Buffer.from("a,b,c,d\ne,f,g,h\n")];
 for (let buffer of buffers){
     [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
     console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
