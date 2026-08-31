@@ -16,7 +16,9 @@ for (let buffer of buffers){
 }
 
 
+let buf = Buffer.from("a,b,c,d\ne,f,g,h\n")
 
-
-
+for (let b of buf){
+    console.log(b);
+}
 
