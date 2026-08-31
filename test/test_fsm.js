@@ -8,17 +8,23 @@ let bufferIndex = 0,
     parserState = 5;
 
 
-let buffers = [Buffer.from("a,"),Buffer.from("a,b,"), Buffer.from("a,b,c,d\n"), Buffer.from("a,b,c,d\ne,f,g,h\n")];
-for (let buffer of buffers){
-    [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+// let buffers = [Buffer.from("a,"),Buffer.from("a,b,"), Buffer.from("a,b,c,d\n"), Buffer.from("a,b,c,d\ne,f,g,h\n")];
+// for (let buffer of buffers){
+//     [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(buffer, bufferIndex,itable, itableIndex, parserState );
+//     console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
+//     console.log(itable);
+// }
+
+
+//let payload = Buffer.from("a,b,c,d\ne,f,g,h\n")
+//let payload = Buffer.from(",b,c,d\ne,f,g,h\n")
+let payload = Buffer.from(",\n")
+
+
+for (let i =0;i<= payload.length;i++){
+    [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(payload.subarray(0,i), bufferIndex,itable, itableIndex, parserState );
     console.log(`parserState ${parserState}, bufferIndex ${bufferIndex}, itable, itableIndex ${itableIndex}`);
     console.log(itable);
-}
-
-
-let buf = Buffer.from("a,b,c,d\ne,f,g,h\n")
-
-for (let b of buf){
-    console.log(b);
+    console.log(payload.subarray(0,i));
 }
 
