@@ -18,7 +18,7 @@ let bufferIndex = 0,
 
 //let payload = Buffer.from("a,b,c,d\ne,f,g,h\n")
 //let payload = Buffer.from(",b,c,d\ne,f,g,h\n")
-let payload = Buffer.from(`a,"b",c\nd,d,f\n`);
+let payload = Buffer.from(`"wN|}"\n`);
 
 
 for (let i =0;i<= payload.length;i++){

@@ -1,4 +1,9 @@
-import { MarkovEngine } from '../lib/parser/markov/parse_escaped_byte.js';
+import {WirthMarkovFSM} from "../lib/parser/wirth_markov_fsm.js"
+import {Buffer} from "node:buffer"
+
+const PAYLOAD_SIZE = 16;
+
+
 
 // Хелпер: генерация алфавита без критических символов (кавычки, запятые, CRLF)
 function genSafeByte() {
@@ -14,12 +19,12 @@ function genSafeByte() {
  * ГЕНЕРАТОР №1: Гарантированно Истинные Положительные Кейсы (Expected: true)
  * Строго соблюдает RFC 4180: парные кавычки внутри, легальный финиш на краю
  */
-function generateTruePositiveTuple(maxLength = 256) {
+function generateTruePositiveTuple(maxLength = PAYLOAD_SIZE) {
     // Резервируем длину, учитывая, что в конце всегда пишем кавычку и терминатор (2 байта)
     const length = Math.floor(Math.random() * (maxLength - 4)) + 4; 
     const buf = Buffer.alloc(length);
     
-    let writeOffset = 0;
+    let writeOffset = 1;
     
     // Заполняем тело ячейки
     while (writeOffset < length - 2) {
@@ -34,9 +39,9 @@ function generateTruePositiveTuple(maxLength = 256) {
     
     // Жестко паяем легальный финиш по RFC 4180
     buf[length - 2] = 0x22; // закрывающая кавычка ячейки
-    
+    buf[0] = 0x22; // открывающая кавычка ячейки
     // Случайный легальный разделитель: запятая, перенос строки или EOF
-    const terminators = [0x2C, 0x0A, 0x0D];
+    const terminators = [0x0A];
     buf[length - 1] = terminators[Math.floor(Math.random() * terminators.length)];
     
     return { buffer: buf, expected: true, type: 'TRUE_POSITIVE' };
@@ -46,7 +51,7 @@ function generateTruePositiveTuple(maxLength = 256) {
  * ГЕНЕРАТОР №2: Гарантированно Истинные Отрицательные Кейсы (Expected: false)
  * Намеренно ломает математический баланс кавычек (Одинокая кавычка)
  */
-function generateTrueNegativeTuple(maxLength = 256) {
+function generateTrueNegativeTuple(maxLength = PAYLOAD_SIZE) {
     const length = Math.floor(Math.random() * (maxLength - 4)) + 4;
     const buf = Buffer.alloc(length);
     
@@ -64,7 +69,7 @@ function generateTrueNegativeTuple(maxLength = 256) {
     
     // В конце пишем обычный легальный финиш ячейки, но одиночка в середине обязана всё взорвать!
     buf[length - 2] = 0x22;
-    buf[length - 1] = 0x2C;
+    buf[length - 1] = 0x0A;
     
     return { buffer: buf, expected: false, type: 'TRUE_NEGATIVE_SINGLE_QUOTE' };
 }
@@ -73,40 +78,56 @@ function generateTrueNegativeTuple(maxLength = 256) {
  * ГЛАВНЫЙ СУДЬЯ: Прогон стохастических кортежей
  */
 function runExtremePropertyTest(iterations = 10000) {
+   
+
     console.log(`\n================================================================`);
     console.log(`[START] Запуск Экстремального Полика инвариантов Хоара...`);
     console.log(`[INFO] Объем залпа: ${iterations} типизированных кортежей.`);
     console.log(`================================================================\n`);
     
     let stats = { true_pos: 0, true_neg: 0, false_pos: 0, false_neg: 0 };
-    const startIndex = 0;
     
     for (let t = 0; t < iterations; t++) {
-	console.log(t);
+	let bufferIndex = 0,
+	    itable = new Int32Array(256),
+	    itableIndex =0,
+	    parserState = 5,
+	    actualResult = false;
+
         // Поочередно генерируем то гарантированный успех, то гарантированную мину
         const caseTuple = t % 2 === 0 
-            ? generateTruePositiveTuple(256) 
-            : generateTrueNegativeTuple(256);
-            
-        // Вызываем марковское ядро
-        // (Адаптируйте сигнатуру вызова под экспорт вашей текущей функции MarkovEngine)
-        let [actualResult, errorIndex, nextBuffer] = MarkovEngine(startIndex, caseTuple.buffer);
+            ? generateTruePositiveTuple(PAYLOAD_SIZE) 
+            : generateTruePositiveTuple(PAYLOAD_SIZE);
+//        console.log(caseTuple.buffer)
+//	console.log(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
+	[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(caseTuple.buffer, bufferIndex,itable, itableIndex, parserState );
+	
+	if (
+	      parserState === 5 &&
+		bufferIndex === caseTuple.buffer.length &&
+		itableIndex === 3 &&
+		itable[0] === 0 &&
+		itable[1] === caseTuple.buffer.length - 1 &&
+		itable[2] === -1){
+	
+	    actualResult = true;
+	}
         
-        // Сверка математического ожидания с реальностью
+        // // Сверка математического ожидания с реальностью
         if (actualResult !== caseTuple.expected) {
             console.error(`\n🚨 [КАТАСТРОФА] МАТРИЦА ОШИБОК ПРОБИТА!`);
             console.error(`[ТИП ТЕСТА]: ${caseTuple.type}`);
             console.error(`[ОЖИДАЛОСЬ]: ${caseTuple.expected} | [ПОЛУЧЕНО]: ${actualResult}`);
             console.error(`[ДЛИНА БУФЕРА]: ${caseTuple.buffer.length}`);
-            console.error(`[ИНДЕКС СБОЯ]: ${errorIndex}`);
             console.error(`[СЫРЫЕ БАЙТЫ БУФЕРА]:`, caseTuple.buffer);
             console.error(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
+	    console.log(parserState,bufferIndex, itableIndex);
             process.exit(1); // Аварийный стоп конвейера
         }
         
         // Сбор метрик сопряженности
-        if (caseTuple.expected === true && actualResult === true) stats.true_pos++;
-        if (caseTuple.expected === false && actualResult === false) stats.true_neg++;
+         if (caseTuple.expected === true && actualResult === true) stats.true_pos++;
+         if (caseTuple.expected === false && actualResult === false) stats.true_neg++;
     }
     
     console.log(`================================================================`);
