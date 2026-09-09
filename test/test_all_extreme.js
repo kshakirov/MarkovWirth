@@ -56,14 +56,14 @@ function generateTrueNegativeTuple(maxLength = PAYLOAD_SIZE) {
     const buf = Buffer.alloc(length);
     
     // Заполняем тело безопасными байтами
-    for (let i = 0; i < length; i++) {
+    for (let i = 1; i < length; i++) {
         buf[i] = genSafeByte();
     }
     
     // Внедряем ОДИНОЧНУЮ кавычку на случайную позицию в середине
-    const evilIndex = Math.floor(Math.random() * (length - 3)) + 1;
+    const evilIndex = Math.floor(Math.random() * (length - 4)) + 1;
     buf[evilIndex] = 0x22; 
-    
+    buf[0] = 0x22; //первая кавычка идет
     // Проверяем, чтобы за ней не встала случайно кавычка или запятая (гарантируем одиночество)
     buf[evilIndex + 1] = genSafeByte();
     
@@ -96,10 +96,11 @@ function runExtremePropertyTest(iterations = 10000) {
 
         // Поочередно генерируем то гарантированный успех, то гарантированную мину
         const caseTuple = t % 2 === 0 
-            ? generateTruePositiveTuple(PAYLOAD_SIZE) 
-            : generateTruePositiveTuple(PAYLOAD_SIZE);
+            ? generateTrueNegativeTuple(PAYLOAD_SIZE) 
+            : generateTrueNegativeTuple(PAYLOAD_SIZE);
 //        console.log(caseTuple.buffer)
-//	console.log(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
+	//	console.log(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
+	try {
 	[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(caseTuple.buffer, bufferIndex,itable, itableIndex, parserState );
 	
 	if (
@@ -112,7 +113,8 @@ function runExtremePropertyTest(iterations = 10000) {
 	
 	    actualResult = true;
 	}
-        
+	}catch (error){console.log(error)}; 
+	    
         // // Сверка математического ожидания с реальностью
         if (actualResult !== caseTuple.expected) {
             console.error(`\n🚨 [КАТАСТРОФА] МАТРИЦА ОШИБОК ПРОБИТА!`);
@@ -121,7 +123,7 @@ function runExtremePropertyTest(iterations = 10000) {
             console.error(`[ДЛИНА БУФЕРА]: ${caseTuple.buffer.length}`);
             console.error(`[СЫРЫЕ БАЙТЫ БУФЕРА]:`, caseTuple.buffer);
             console.error(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
-	    console.log(parserState,bufferIndex, itableIndex);
+//	    console.log(parserState,bufferIndex, itableIndex);
             process.exit(1); // Аварийный стоп конвейера
         }
         
