@@ -78,7 +78,7 @@ function generateTrueNegativeTuple(maxLength = PAYLOAD_SIZE) {
  * ГЛАВНЫЙ СУДЬЯ: Прогон стохастических кортежей
  */
 function runExtremePropertyTest(iterations = 10000) {
-   
+    
 
     console.log(`\n================================================================`);
     console.log(`[START] Запуск Экстремального Полика инвариантов Хоара...`);
@@ -96,25 +96,27 @@ function runExtremePropertyTest(iterations = 10000) {
 
         // Поочередно генерируем то гарантированный успех, то гарантированную мину
         const caseTuple = t % 2 === 0 
-            ? generateTrueNegativeTuple(PAYLOAD_SIZE) 
-            : generateTrueNegativeTuple(PAYLOAD_SIZE);
-//        console.log(caseTuple.buffer)
+              ? generateTruePositiveTuple(PAYLOAD_SIZE) 
+              : generateTrueNegativeTuple(PAYLOAD_SIZE);
+	//console.log(caseTuple.expected)
 	//	console.log(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
 	try {
-	[parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(caseTuple.buffer, bufferIndex,itable, itableIndex, parserState );
-	
-	if (
-	      parserState === 5 &&
-		bufferIndex === caseTuple.buffer.length &&
-		itableIndex === 3 &&
-		itable[0] === 0 &&
-		itable[1] === caseTuple.buffer.length - 1 &&
-		itable[2] === -1){
-	
-	    actualResult = true;
-	}
-	}catch (error){console.log(error)}; 
+	    [parserState,bufferIndex,itable, itableIndex] =  WirthMarkovFSM(caseTuple.buffer, bufferIndex,itable, itableIndex, parserState );
 	    
+	    if (
+		parserState === 5 &&
+		    bufferIndex === caseTuple.buffer.length &&
+		    itableIndex === 3 &&
+		    itable[0] === 0 &&
+		    itable[1] === caseTuple.buffer.length - 1 &&
+		    itable[2] === -1){
+		
+		actualResult = true;
+	    }
+	}catch (error){
+	    //console.log(error);
+	}; 
+	
         // // Сверка математического ожидания с реальностью
         if (actualResult !== caseTuple.expected) {
             console.error(`\n🚨 [КАТАСТРОФА] МАТРИЦА ОШИБОК ПРОБИТА!`);
@@ -123,13 +125,13 @@ function runExtremePropertyTest(iterations = 10000) {
             console.error(`[ДЛИНА БУФЕРА]: ${caseTuple.buffer.length}`);
             console.error(`[СЫРЫЕ БАЙТЫ БУФЕРА]:`, caseTuple.buffer);
             console.error(`[СТРОКОВЫЙ СЛИВ]: ${caseTuple.buffer.toString('utf-8')}\n`);
-//	    console.log(parserState,bufferIndex, itableIndex);
+	    //	    console.log(parserState,bufferIndex, itableIndex);
             process.exit(1); // Аварийный стоп конвейера
         }
         
         // Сбор метрик сопряженности
-         if (caseTuple.expected === true && actualResult === true) stats.true_pos++;
-         if (caseTuple.expected === false && actualResult === false) stats.true_neg++;
+        if (caseTuple.expected === true && actualResult === true) stats.true_pos++;
+        if (caseTuple.expected === false && actualResult === false) stats.true_neg++;
     }
     
     console.log(`================================================================`);
