@@ -1,89 +1,87 @@
-import fs from 'node:fs'
-
+import {MarkovEngine} from "./../lib/parser/markov/parse_escaped.js"
 console.log("creating the parser")
 
 
-const csv = `
-pos,id,name
-1,100,Kirill
-2,200,Vasiliy
+const csv = `pos,id,name,
+1," here it is 100 ",a,
+2,200,k,
+3," tell me """ here """ ","kkk ee",
+4,400,a
 `
 
-
-
-
-
-
-function markEscaped(){
-    current_stage = "ESCAPED";
-}
-
-function markUnescaped(){
-}
-
-function markEscapedBody(){
-}
-
-function markEmpty(){
-    
-}
-
-function markLbrk(){
-    
-}
-
-function runEscped(){
-    
-}
-
-
-
-function parseUnescaped(str){
+function parseUnescaped(str, acc){
     if(str[0]!= "," && str[0]!="\n"){
-	parseUnescaped(str.slice(1))
-	return str[0];
-    }else{
-	parseFile(str.slice(1));
-    }
-}
-      
-function parseEscaped(str){
-    //check if not another "" later
-    if(str[0]==","){
-	parseEscaped(str.slice(1));
-	return ch;
-    }else{
-	parseFile()
+	return parseUnescaped(str.slice(1), acc + str[0]);
+    }else if(str[0]=="\n" || str[0]==","){
+	return [acc, str];
     }
 }
 
-
-function  parseFile(str){
-    let row = []
-//    console.log(`parseFile ${str}`)
-    if(str.length == 0){
-	console.log("Finished");
-	return row;
-	
+function parseEscaped(str, acc){
+    console.log(`Entering parseescaped with acc ${acc}`);
+    let [result, orig] = MarkovEngine(acc);
+    if(result){
+	let ro = orig.slice(0,-1);
+	console.log(`All parsed: ${orig} without , ${ro} `);
+	return [ro,str]
+    }else if (result == null){
+	console.log(`Not Yet Parsed: ${acc}`);
+	return parseEscaped(str.slice(1), acc + str[0]);
     }
-    else if(str[0]!=="\""){
-	let cell = [];
-	cell.push(parseUnescaped(str.slice(1)));
-	//console.log(cell);
-	row.push(cell);
 
-    }else if(str[0]=="\"" && str[0] != "\n"){
-	 parseEscaped(str.slice(1))
-    }else if(str[0]=="\n" && str.length > 1){
-	 return parseFile(str.slice(1));
+}
+
+
+function addCellToArray(cell, array){
+    array[0].unshift(cell);
+    return array
+}
+
+function addEmptyArrayToNewLine(func){
+    
+    return [[], ...func];
+}
+
+function parseFile(str){
+    
+    if(str.length > 0){
+	if(str[0]!=="\"" && str[0]!="\n" && str[0] !=","){
+	    let par = str;
+	    let [cell , n_str] = parseUnescaped(par, "");
+	    return addCellToArray(cell, parseFile(n_str))
+	}else if(str[0]=="\"" && str[0] != "\n"){
+	    let par = str;
+	    let [cell, n_str] = parseEscaped(par,"")
+	    return addCellToArray(cell, parseFile(n_str))
+	}else if (str[0] == ","){
+	    return  parseFile(str.slice(1)) ;
+
+	    
+	}else if(str[0]=="\n"){
+	    console.log(str.length)
+	    if(str.length >= 1){
+		return  addEmptyArrayToNewLine(parseFile(str.slice(1))) ;
+//		return  parseFile(str.slice(1)) ;
+	    }else{
+		return parseFile([])
+	    }
+
+	}
     }
     else {
 	
-	console.log("some unkonwn character " + ch );
+	console.log("Finishing ");
+	return [] ;
     }
 
 }
 
+
+
 let result = parseFile(csv);
 
-console.log(result);
+
+//console.log(JSON.stringify(result));
+for (let r of result){
+    console.log(r);
+}
