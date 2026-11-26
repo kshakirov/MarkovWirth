@@ -28,7 +28,13 @@ The reader is modeled as a demand-and-ownership state machine rather than as a m
 - Natural worker completion is observed as `DESTROYED`; after all publishable data has been handled, the reader ends the Node.js stream with `push(null)`.
 - A thrown parser or worker error is not treated as normal EOF and must reach stream destruction as an error.
 
-The exact internal representation of pending demand is deliberately left to the implementation experiment. The invariant is fixed; the mechanism is not yet accepted.
+Pending demand is kept inside the same live `_read()` invocation. `_read()` runs a state-driven loop:
+
+1. If the current cassette has already been pushed, it waits for `MAIN_TURN` to change when the consumer releases borrowed memory.
+2. It continues the loop and waits for `WORKER_TURN` to change when the worker publishes the next cassette.
+3. A real `push()` or `push(null)` ends that `_read()` invocation.
+
+When one worker cassette produces both a reconstructed `OWNED` row and a regular `BORROWED` batch, publication is treated as one ownership act. The reader marks the worker cassette as claimed before the first `push()`, publishes the prepared `OWNED` row, and then publishes `BORROWED`. A re-entrant `_read()` therefore enters the waiting branch instead of processing the same worker cassette again. The consumer releases shared memory only for `BORROWED`.
 
 ## Rationale
 
@@ -38,7 +44,8 @@ Keeping the two dimensions explicit preserves zero-copy ownership, Node.js backp
 
 ## Consequences
 
-- The reader needs an explicit state transition for demand arriving during a live borrowed cassette.
+- Demand arriving during a live borrowed cassette stays inside a two-phase `_read()` loop: wait for release, then wait for the next worker publication.
+- `OWNED` and `BORROWED` results from one worker cassette are published under one pre-set claimed flag, preventing re-entrant duplicate processing.
 - Tests must cover re-entrant `_read()` during `push()`, delayed release, duplicate prevention, normal EOF, early destroy, and worker failure.
 - A cassette generation identifier may be added later if the Boolean ownership flag is insufficient for verification.
 - The worker startup wake-up that did not transfer ownership is invalid and has been removed from the experiment.
@@ -46,5 +53,4 @@ Keeping the two dimensions explicit preserves zero-copy ownership, Node.js backp
 
 ## Status
 
-Proposed. The observations are experimentally reproduced; the pending-demand mechanism is still under construction.
-
+Accepted and experimentally implemented. A full run published five `OWNED` rows and seven `BORROWED` cassettes, survived re-entrant `_read()`, reached `DESTROYED`, and exited normally. Backpressure from the return value of multiple `push()` calls remains follow-up work.
